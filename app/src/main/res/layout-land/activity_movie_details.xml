@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.android.popularmoviesstage1.MovieDetails">
+
+    <ImageView
+        android:id="@+id/movie_details_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.85"
+        android:background="@color/colorAccent" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/movie_details_cardview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/regular_padding"
+                app:cardCornerRadius="@dimen/small_padding"
+                app:cardElevation="@dimen/small_padding">
+
+                <ImageView
+                    android:id="@+id/movie_details_poster"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:src="@drawable/no_poster" />
+            </android.support.v7.widget.CardView>
+
+            <TextView
+                android:id="@+id/movie_details_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/regular_padding"
+                android:layout_marginTop="@dimen/regular_padding"
+                android:layout_toEndOf="@id/movie_details_cardview"
+                android:text="@string/no_title"
+                android:textColor="@color/colorWhite"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/movie_details_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/movie_details_vote"
+                android:layout_alignBottom="@+id/movie_details_vote"
+                android:layout_toEndOf="@+id/movie_details_cardview"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp"
+                tools:text="0000" />
+
+            <TextView
+                android:id="@+id/movie_details_vote"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@id/movie_details_title"
+                android:layout_below="@id/movie_details_title"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="@dimen/tiny_padding"
+                android:background="@drawable/circle"
+                android:gravity="center"
+                android:padding="@dimen/small_padding"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="0.0" />
+
+            <TextView
+                android:id="@+id/movie_details_overview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/movie_details_vote"
+                android:layout_marginBottom="@dimen/regular_padding"
+                android:layout_marginEnd="@dimen/regular_padding"
+                android:layout_marginTop="@dimen/small_padding"
+                android:layout_toEndOf="@id/movie_details_cardview"
+                android:text="@string/no_overview"
+                android:textColor="@color/colorWhite" />
+        </RelativeLayout>
+    </ScrollView>
+</RelativeLayout>
