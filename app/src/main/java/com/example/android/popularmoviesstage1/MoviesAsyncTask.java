@@ -1,49 +1,27 @@
 package com.example.android.popularmoviesstage1;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import java.net.URL;
 import java.util.ArrayList;
 
-/**
+/*
  * Created by David on 02/10/2017.
- * Source: http://www.jameselsey.co.uk/blogs/techblog/extracting-out-your-asynctasks-into-separate-classes-makes-your-code-cleaner/
  */
 
-public class MoviesAsyncTask extends AsyncTask<URL, Void, ArrayList<Movie>> {
+class MoviesAsyncTask extends AsyncTask<URL, Void, ArrayList<Movie>> {
     private final String TAG = MoviesAsyncTask.class.getSimpleName();
-
-    /**
-     * This is a useful callback mechanism so we can abstract our AsyncTasks out into separate,
-     * re-usable and testable classes yet still retain a hook back into the calling activity.
-     * Basically, it'll make classes cleaner and easier to unit test.
-     *
-     * @param <T>
-     */
-    public interface AsyncTaskCompleteListener<T> {
-        /**
-         * Invoked when the AsyncTask has completed its execution.
-         *
-         * @param result The resulting object from the AsyncTask.
-         */
-        public void onTaskComplete(T result);
-    }
-
     private AsyncTaskCompleteListener<ArrayList<Movie>> listener;
-    private Context context;
 
     /**
      * Constructor for this class.
      *
-     * @param context  the context of the class from which the MoviesAsyncTask object is created.
      * @param listener a listener that implements the interface {@link AsyncTaskCompleteListener}.
      *                 It will manage the result of the AsyncTask when it is done on
      *                 {@link #onPostExecute}.
      */
-    public MoviesAsyncTask(Context context, AsyncTaskCompleteListener<ArrayList<Movie>> listener) {
-        this.context = context;
+    MoviesAsyncTask(AsyncTaskCompleteListener<ArrayList<Movie>> listener) {
         this.listener = listener;
         Log.i(TAG, "(MoviesAsyncTask) Async Task created.");
     }
@@ -85,5 +63,23 @@ public class MoviesAsyncTask extends AsyncTask<URL, Void, ArrayList<Movie>> {
         super.onPostExecute(searchResults);
         listener.onTaskComplete(searchResults);
         Log.i(TAG, "(onPostExecute) Async Task completed.");
+    }
+
+    /**
+     * This is a useful callback mechanism so we can abstract our AsyncTasks out into separate,
+     * re-usable and testable classes yet still retain a hook back into the calling activity.
+     * Basically, it'll make classes cleaner and easier to unit test.
+     * <p>
+     * For more information: http://www.jameselsey.co.uk/blogs/techblog/extracting-out-your-asynctasks-into-separate-classes-makes-your-code-cleaner/
+     *
+     * @param <T>
+     */
+    interface AsyncTaskCompleteListener<T> {
+        /**
+         * Invoked when the AsyncTask has completed its execution.
+         *
+         * @param result The resulting object from the AsyncTask.
+         */
+        void onTaskComplete(T result);
     }
 }

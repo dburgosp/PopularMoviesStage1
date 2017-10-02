@@ -10,27 +10,16 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-/**
+/*
  * Created by David on 19/09/2017.
  */
 
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesViewHolder> {
+class MoviesAdapter extends RecyclerView.Adapter<MoviesViewHolder> {
 
     private static final String TAG = MoviesAdapter.class.getSimpleName();
+    private final OnItemClickListener listener;
     private ArrayList<Movie> moviesArray;
     private FrameLayout.LayoutParams layoutParams;
-
-    /**
-     * Set a click listener to the RecyclerView, so we can manage OnClick events from the Main
-     * Activity from which the RecyclerView is created.
-     *
-     * Source: https://antonioleiva.com/recyclerview-listener/
-     */
-    public interface OnItemClickListener {
-        void onItemClick(Movie item);
-    }
-    private final OnItemClickListener listener;
-
     /**
      * Constructor for this class.
      *
@@ -96,8 +85,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesViewHolder> {
      * on (e.g. in a click listener), use {@link MoviesViewHolder#getAdapterPosition()} which will
      * have the updated adapter position.
      * <p>
-     * Override {@link #onBindViewHolder(MoviesViewHolder, int)} instead if Adapter can
-     * handle efficient partial bind.
      *
      * @param viewHolder The ViewHolder which should be updated to represent the contents of the
      *                   item at the given position in the data set.
@@ -122,5 +109,15 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesViewHolder> {
         int itemCount = moviesArray.size();
         Log.i(TAG, "(getItemCount) Number of items in this adapter: " + itemCount);
         return itemCount;
+    }
+
+    /**
+     * Set a click listener to the RecyclerView, so we can manage OnClick events from the Main
+     * Activity from which the RecyclerView is created.
+     * <p>
+     * For more information: https://antonioleiva.com/recyclerview-listener/
+     */
+    interface OnItemClickListener {
+        void onItemClick(Movie item);
     }
 }

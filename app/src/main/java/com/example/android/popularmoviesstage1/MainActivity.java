@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.net.URL;
@@ -28,18 +29,19 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int VERTICAL_SPAN_COUNT = 3;
     private static final int HORIZONTAL_SPAN_COUNT = 4;
-    private String sortOrder = NetworkUtils.SORT_ORDER_POPULAR;
-    private MoviesAdapter moviesAdapter;
-    private Parcelable savedRecyclerViewState;
-    private int lastFirstVisiblePosition = 0;
     MoviesAdapter.OnItemClickListener listener;
-
     // Annotate fields with @BindView and views ID for Butter Knife to find and automatically cast
     // the corresponding views.
     @BindView(R.id.activity_main_recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.activity_main_no_result_text_view)
     TextView noResultsTextView;
+    @BindView(R.id.activity_main_loading_indicator)
+    ProgressBar progressBar;
+    private String sortOrder = NetworkUtils.SORT_ORDER_POPULAR;
+    private MoviesAdapter moviesAdapter;
+    private Parcelable savedRecyclerViewState;
+    private int lastFirstVisiblePosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,12 +124,14 @@ public class MainActivity extends AppCompatActivity {
         // Check if there is an available connection.
         if (isConnected()) {
             // There is connection. Fetch results from TMDB.
+            progressBar.setVisibility(View.VISIBLE);
             noResultsTextView.setVisibility(View.INVISIBLE);
             URL searchURL = NetworkUtils.buildURL(sortOrder);
             Log.i(TAG, "(setAsyncTask) Search URL: " + searchURL.toString());
-            new MoviesAsyncTask(this, new MoviesAsyncTaskCompleteListener()).execute(searchURL);
+            new MoviesAsyncTask(new MoviesAsyncTaskCompleteListener()).execute(searchURL);
         } else {
             // There is no connection. Show error message.
+            progressBar.setVisibility(View.INVISIBLE);
             noResultsTextView.setVisibility(View.VISIBLE);
             noResultsTextView.setText(getResources().getString(R.string.no_connection));
         }
@@ -223,15 +227,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Save current sort order.
         outState.putString("sortOrder", sortOrder);
-
-        // Save position on the grid.
-        /*
-        savedRecyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
-        outState.putParcelable("savedRecyclerViewState", savedRecyclerViewState);
-
-        lastFirstVisiblePosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
-        outState.putInt("lastFirstVisiblePosition", lastFirstVisiblePosition);
-        */
     }
 
     /**
@@ -262,19 +257,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Retrieve data from TMDB.
         setAsyncTask();
-
-        // Restore position on the grid.
-        /*
-        savedRecyclerViewState = savedInstanceState.getParcelable("savedRecyclerViewState");
-        recyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerViewState);
-
-        lastFirstVisiblePosition = savedInstanceState.getInt("lastFirstVisiblePosition");
-        if (lastFirstVisiblePosition > 0) {
-            recyclerView.getLayoutManager().scrollToPosition(lastFirstVisiblePosition);
-            ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(lastFirstVisiblePosition, 0);
-            lastFirstVisiblePosition = 0;
-        }
-        */
     }
 
     /**
@@ -283,6 +265,9 @@ public class MainActivity extends AppCompatActivity {
     private class MoviesAsyncTaskCompleteListener implements MoviesAsyncTask.AsyncTaskCompleteListener<ArrayList<Movie>> {
         @Override
         public void onTaskComplete(ArrayList<Movie> searchResults) {
+            // Hide progress bar.
+            progressBar.setVisibility(View.INVISIBLE);
+
             // Check if there is an available connection.
             if (isConnected()) {
                 // If there is a valid list of {@link Movie}s, then add them to the adapter's data set.

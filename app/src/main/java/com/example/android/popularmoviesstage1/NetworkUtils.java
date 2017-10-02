@@ -1,6 +1,6 @@
 package com.example.android.popularmoviesstage1;
 
-/**
+/*
  * Created by David on 25/09/2017.
  */
 
@@ -20,21 +20,19 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 final class NetworkUtils {
-    private final static String TAG = MainActivity.class.getSimpleName();
-    private final static String BASE_URL = "https://api.themoviedb.org/3/movie";
-    private final static String PARAM_API_KEY = "api_key";
-
-    // API KEY is defined into gradle.properties and referenced from app:build.gradle. The file
-    // gradle.properties is included in the .gitignore file, so the API KEY will not be published
-    // on GitHub.
-    //
-    // Source: https://richardroseblog.wordpress.com/2016/05/29/hiding-secret-api-keys-from-git/
-    private final static String API_KEY = BuildConfig.API_KEY;
-
     final static String THUMBNAIL_IMAGE_URL = "https://image.tmdb.org/t/p/w185";
     final static String FULL_IMAGE_URL = "https://image.tmdb.org/t/p/w500";
     final static String SORT_ORDER_POPULAR = "popular";
     final static String SORT_ORDER_TOP_RATED = "top_rated";
+    private final static String TAG = MainActivity.class.getSimpleName();
+    private final static String BASE_URL = "https://api.themoviedb.org/3/movie";
+    private final static String PARAM_API_KEY = "api_key";
+    // API KEY is defined into gradle.properties and referenced from app:build.gradle. The file
+    // gradle.properties is included in the .gitignore file, so the API KEY will not be published
+    // on GitHub.
+    //
+    // For more information: https://richardroseblog.wordpress.com/2016/05/29/hiding-secret-api-keys-from-git/
+    private final static String API_KEY = BuildConfig.API_KEY;
 
     /**
      * Create a private constructor because no one should ever create a {@link NetworkUtils} object.
@@ -95,11 +93,11 @@ final class NetworkUtils {
     }
 
     /**
-     * Retrieves a JSON document from the URL created previously in {@link #buildURL(String, String)}.
+     * Retrieves a JSON document from the URL created previously in {@link #buildURL(String)}.
      *
      * @param url is the URL for retrieving the JSON document.
      * @return a String with the JSON document.
-     * @throws java.io.IOException
+     * @throws java.io.IOException from url.openConnection().
      */
     private static String getJSONresponse(URL url) throws java.io.IOException {
         Log.i(TAG, "(getJSONresponse) URL: " + url);
