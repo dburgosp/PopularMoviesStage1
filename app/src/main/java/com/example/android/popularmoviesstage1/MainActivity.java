@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int VERTICAL_SPAN_COUNT = 3;
     private static final int HORIZONTAL_SPAN_COUNT = 4;
     MoviesAdapter.OnItemClickListener listener;
+
     // Annotate fields with @BindView and views ID for Butter Knife to find and automatically cast
     // the corresponding views.
     @BindView(R.id.activity_main_recycler_view)
@@ -38,10 +38,9 @@ public class MainActivity extends AppCompatActivity {
     TextView noResultsTextView;
     @BindView(R.id.activity_main_loading_indicator)
     ProgressBar progressBar;
+
     private String sortOrder = NetworkUtils.SORT_ORDER_POPULAR;
     private MoviesAdapter moviesAdapter;
-    private Parcelable savedRecyclerViewState;
-    private int lastFirstVisiblePosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,15 +72,27 @@ public class MainActivity extends AppCompatActivity {
      * arrangement.
      */
     void setRecyclerView() {
+        // Get current display metrics.
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        final int displaWidthPixels = metrics.widthPixels;
+        final int displayHeightPixels = metrics.heightPixels;
+
         // Vertical GridLayoutManager for displaying movie posters with a number of columns
         // determined by the current orientation of the device.
         int spanCount;
+        final int detailsPosterlWidthPixels;
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             Log.i(TAG, "(setRecyclerView) Portrait orientation");
             spanCount = VERTICAL_SPAN_COUNT;
+            detailsPosterlWidthPixels = (displaWidthPixels / 2) - ((getResources().getDimensionPixelSize(R.dimen.regular_padding)) * 2);
         } else {
             Log.i(TAG, "(setRecyclerView) Landscape orientation");
             spanCount = HORIZONTAL_SPAN_COUNT;
+
+            // When display orientation is landscape, we use screen height for setting the poster
+            // width for the movie details activity.
+            detailsPosterlWidthPixels = (displayHeightPixels / 2) - ((getResources().getDimensionPixelSize(R.dimen.regular_padding)) * 2);
         }
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, spanCount);
 
@@ -89,18 +100,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.setHasFixedSize(true);
 
-        // Get current display metrics.
-        DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        int widthPixels = metrics.widthPixels;
-        int densityDpi = metrics.densityDpi;
-        Log.i(TAG, "(setRecyclerView) densityDpi: " + densityDpi);
-
-        // Define and set the Adapter for the RecyclerView, according to the current display size.
-        widthPixels = widthPixels / spanCount;
-        int heightPixels = 750 * widthPixels / 500;
-        Log.i(TAG, "(setRecyclerView) Poster width: " + widthPixels);
-        Log.i(TAG, "(setRecyclerView) Poster height: " + heightPixels);
+        // Set the listener for click events in the Adapter.
         listener = new MoviesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Movie movie) {
@@ -109,10 +109,29 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(MainActivity.this, MovieDetails.class);
                 intent.putExtra("movie", movie);
                 intent.putExtra("sortOrder", sortOrder);
+
+                // Set sizes for the poster in the movie details activity.
+                int detailsPosterHeightPixels = 750 * detailsPosterlWidthPixels / 500;
+                Log.i(TAG, "(setRecyclerView) Poster width for movie details activity: " + detailsPosterlWidthPixels);
+                Log.i(TAG, "(setRecyclerView) Poster height for movie details activity: " + detailsPosterHeightPixels);
+                intent.putExtra("widthPixels", detailsPosterlWidthPixels);
+                intent.putExtra("heightPixels", detailsPosterHeightPixels);
+
                 startActivity(intent);
             }
         };
-        moviesAdapter = new MoviesAdapter(new ArrayList<Movie>(), widthPixels, heightPixels, listener);
+
+        // Number of columns for the movies list in the RecyclerView (spanCount) is different
+        // depending on device rotation, so poster width for this list also depends on device
+        // rotation.
+        int listPosterWidthPixels = displaWidthPixels / spanCount;
+        int listPosterHeightPixels = 750 * listPosterWidthPixels / 500;
+        Log.i(TAG, "(setRecyclerView) Poster width for movies list: " + listPosterWidthPixels);
+        Log.i(TAG, "(setRecyclerView) Poster height for movies list: " + listPosterHeightPixels);
+
+        // Set the Adapter for the RecyclerView, according to the current display size and
+        // orientation.
+        moviesAdapter = new MoviesAdapter(new ArrayList<Movie>(), listPosterWidthPixels, listPosterHeightPixels, listener);
         recyclerView.setAdapter(moviesAdapter);
     }
 
@@ -121,9 +140,8 @@ public class MainActivity extends AppCompatActivity {
      * certain sortOrder.
      */
     void setAsyncTask() {
-        // Check if there is an available connection.
         if (isConnected()) {
-            // There is connection. Fetch results from TMDB.
+            // There is an available connection. Fetch results from TMDB.
             progressBar.setVisibility(View.VISIBLE);
             noResultsTextView.setVisibility(View.INVISIBLE);
             URL searchURL = NetworkUtils.buildURL(sortOrder);

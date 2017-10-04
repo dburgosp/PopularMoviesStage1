@@ -12,12 +12,42 @@ import android.os.Parcelable;
  * For more information: : https://guides.codepath.com/android/using-parcelable
  */
 
-public class Movie implements Parcelable {
+class Movie implements Parcelable {
+    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
+        /**
+         * Create a new instance of the Parcelable class, instantiating it
+         * from the given Parcel whose data had previously been written by
+         * {@link Parcelable#writeToParcel Parcelable.writeToParcel()}.
+         *
+         * @param source The Parcel to read the object's data from.
+         * @return Returns a new instance of the Parcelable class.
+         */
+        @Override
+        public Movie createFromParcel(Parcel source) {
+            return new Movie(source);
+        }
+
+        /**
+         * Create a new array of the Parcelable class.
+         *
+         * @param size Size of the array.
+         * @return Returns an array of the Parcelable class, with every entry
+         * initialized to null.
+         */
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
     private String title;
     private String posterPath;
     private String overview;
     private Double voteAverage;
     private String releaseDate;
+
+    /*
+     * Getter methods.
+     */
 
     /**
      * Constructor for Movie class.
@@ -28,7 +58,7 @@ public class Movie implements Parcelable {
      * @param voteAverage is the user rating (called voteAverage in the api).
      * @param releaseDate is the release date of the movie.
      */
-    public Movie(String title, String posterPath, String overview, Double voteAverage, String releaseDate) {
+    Movie(String title, String posterPath, String overview, Double voteAverage, String releaseDate) {
         this.title = title;
         this.posterPath = posterPath;
         this.overview = overview;
@@ -36,27 +66,31 @@ public class Movie implements Parcelable {
         this.releaseDate = releaseDate;
     }
 
-    /*
-     * Getter methods.
-     */
+    private Movie(Parcel in) {
+        this.title = in.readString();
+        this.posterPath = in.readString();
+        this.overview = in.readString();
+        this.voteAverage = (Double) in.readValue(Double.class.getClassLoader());
+        this.releaseDate = in.readString();
+    }
 
-    public String getTitle() {
+    String getTitle() {
         return title;
     }
 
-    public String getPosterPath() {
+    String getPosterPath() {
         return posterPath;
     }
 
-    public String getOverview() {
+    String getOverview() {
         return overview;
     }
 
-    public Double getVoteAverage() {
+    Double getVoteAverage() {
         return voteAverage;
     }
 
-    public String getReleaseDate() {
+    String getReleaseDate() {
         return releaseDate;
     }
 
@@ -91,39 +125,4 @@ public class Movie implements Parcelable {
         dest.writeValue(this.voteAverage);
         dest.writeString(this.releaseDate);
     }
-
-    protected Movie(Parcel in) {
-        this.title = in.readString();
-        this.posterPath = in.readString();
-        this.overview = in.readString();
-        this.voteAverage = (Double) in.readValue(Double.class.getClassLoader());
-        this.releaseDate = in.readString();
-    }
-
-    public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
-        /**
-         * Create a new instance of the Parcelable class, instantiating it
-         * from the given Parcel whose data had previously been written by
-         * {@link Parcelable#writeToParcel Parcelable.writeToParcel()}.
-         *
-         * @param source The Parcel to read the object's data from.
-         * @return Returns a new instance of the Parcelable class.
-         */
-        @Override
-        public Movie createFromParcel(Parcel source) {
-            return new Movie(source);
-        }
-
-        /**
-         * Create a new array of the Parcelable class.
-         *
-         * @param size Size of the array.
-         * @return Returns an array of the Parcelable class, with every entry
-         * initialized to null.
-         */
-        @Override
-        public Movie[] newArray(int size) {
-            return new Movie[size];
-        }
-    };
 }

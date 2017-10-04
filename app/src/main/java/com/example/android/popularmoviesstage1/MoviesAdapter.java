@@ -20,12 +20,14 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesViewHolder> {
     private final OnItemClickListener listener;
     private ArrayList<Movie> moviesArray;
     private FrameLayout.LayoutParams layoutParams;
+
     /**
      * Constructor for this class.
      *
      * @param moviesArray  is the list of movies that will be represented into the adapter.
      * @param widthPixels  is the width in pixels of a movie poster.
      * @param heightPixels is the height in pixels of a movie poster.
+     * @param listener     is the listener for receiving the clicks.
      */
     MoviesAdapter(ArrayList<Movie> moviesArray, int widthPixels, int heightPixels, OnItemClickListener listener) {
         Log.i(TAG, "(MoviesAdapter) Object created");

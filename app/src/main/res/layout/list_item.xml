@@ -6,9 +6,8 @@
 
     <ImageView
         android:id="@+id/list_item_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/content_description"
+        style="@style/movie_details_cardview"
+        android:contentDescription="@string/content_description_poster"
         android:paddingEnd="@dimen/tiny_padding"
         android:paddingTop="@dimen/tiny_padding"
         android:scaleType="centerCrop"

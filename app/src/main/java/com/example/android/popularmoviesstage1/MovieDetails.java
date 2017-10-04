@@ -3,23 +3,24 @@ package com.example.android.popularmoviesstage1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MovieDetails extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
-    private String sortOrder;
-
     // Annotate fields with @BindView and views ID for Butter Knife to find and automatically cast
     // the corresponding views.
     @BindView(R.id.movie_details_background)
@@ -34,6 +35,9 @@ public class MovieDetails extends AppCompatActivity {
     TextView movieDetailsDate;
     @BindView(R.id.movie_details_vote)
     TextView movieDetailsVote;
+    @BindView(R.id.movie_details_cardview)
+    CardView posterCardView;
+    private String sortOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,13 @@ public class MovieDetails extends AppCompatActivity {
         // pressing "back" button.
         Intent intent = getIntent();
         sortOrder = intent.getStringExtra("sortOrder");
+
+        // Set CardView size depending on the width and height in pixels of the current device. As
+        // the parent of the CardView is a LinearLayout, we must use LinearLayout.LayoutParams.
+        int widthPixels = intent.getIntExtra("widthPixels", 0);
+        int heightPixels = intent.getIntExtra("heightPixels", 0);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(widthPixels, heightPixels);
+        posterCardView.setLayoutParams(layoutParams);
 
         // Display movie information.
         Movie movie = intent.getParcelableExtra("movie");
@@ -98,7 +109,7 @@ public class MovieDetails extends AppCompatActivity {
         Log.i(TAG, "(getYear) Release date: " + dateString);
         Calendar calendar = Calendar.getInstance();
         String year = "";
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-mm-dd", Locale.getDefault());
 
         try {
             calendar.setTime(format.parse(dateString));
@@ -119,7 +130,7 @@ public class MovieDetails extends AppCompatActivity {
      * default Up navigation will be handled automatically. See
      * {@link #getSupportParentActivityIntent()} for how to specify the parent. If any activity
      * along the parent chain requires extra Intent arguments, the Activity subclass
-     * should override the method {@link #onPrepareSupportNavigateUpTaskStack(TaskStackBuilder)}
+     * should override the method onPrepareSupportNavigateUpTaskStack(TaskStackBuilder)
      * to supply those arguments.</p>
      * <p>
      * <p>See <a href="{@docRoot}guide/topics/fundamentals/tasks-and-back-stack.html">Tasks and
@@ -127,7 +138,7 @@ public class MovieDetails extends AppCompatActivity {
      * <a href="{@docRoot}design/patterns/navigation.html">Navigation</a> from the design guide
      * for more information about navigating within your app.</p>
      * <p>
-     * <p>See the {@link TaskStackBuilder} class and the Activity methods
+     * <p>See the TaskStackBuilder class and the Activity methods
      * {@link #getSupportParentActivityIntent()}, {@link #supportShouldUpRecreateTask(Intent)}, and
      * {@link #supportNavigateUpTo(Intent)} for help implementing custom Up navigation.</p>
      *
