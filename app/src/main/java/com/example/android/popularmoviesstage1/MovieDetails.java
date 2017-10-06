@@ -38,6 +38,7 @@ public class MovieDetails extends AppCompatActivity {
     @BindView(R.id.movie_details_cardview)
     CardView posterCardView;
     private String sortOrder;
+    private int currentPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,9 +59,10 @@ public class MovieDetails extends AppCompatActivity {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(widthPixels, heightPixels);
         posterCardView.setLayoutParams(layoutParams);
 
-        // Display movie information.
+        // Display movie information and save current movie currentPosition in the grid.
         Movie movie = intent.getParcelableExtra("movie");
         setMovieInfo(movie);
+        currentPosition = movie.getPosition();
     }
 
     /**
@@ -150,6 +152,7 @@ public class MovieDetails extends AppCompatActivity {
         // Back to parent activity with extra data.
         Intent returnIntent = new Intent(this, MainActivity.class);
         returnIntent.putExtra("sortOrder", sortOrder);
+        returnIntent.putExtra("currentPosition", currentPosition);
         this.startActivity(returnIntent);
         finish();
         return true;

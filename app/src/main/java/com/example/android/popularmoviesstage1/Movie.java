@@ -44,6 +44,7 @@ class Movie implements Parcelable {
     private String overview;
     private Double voteAverage;
     private String releaseDate;
+    private int position;
 
     /*
      * Getter methods.
@@ -57,13 +58,15 @@ class Movie implements Parcelable {
      * @param overview    is the plot synopsis (called overview in the api).
      * @param voteAverage is the user rating (called voteAverage in the api).
      * @param releaseDate is the release date of the movie.
+     * @param position    is the position of the movie into the list.
      */
-    Movie(String title, String posterPath, String overview, Double voteAverage, String releaseDate) {
+    Movie(String title, String posterPath, String overview, Double voteAverage, String releaseDate, int position) {
         this.title = title;
         this.posterPath = posterPath;
         this.overview = overview;
         this.voteAverage = voteAverage;
         this.releaseDate = releaseDate;
+        this.position = position;
     }
 
     private Movie(Parcel in) {
@@ -72,6 +75,7 @@ class Movie implements Parcelable {
         this.overview = in.readString();
         this.voteAverage = (Double) in.readValue(Double.class.getClassLoader());
         this.releaseDate = in.readString();
+        this.position = (int) in.readValue(int.class.getClassLoader());
     }
 
     String getTitle() {
@@ -92,6 +96,14 @@ class Movie implements Parcelable {
 
     String getReleaseDate() {
         return releaseDate;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     /**
@@ -124,5 +136,6 @@ class Movie implements Parcelable {
         dest.writeString(this.overview);
         dest.writeValue(this.voteAverage);
         dest.writeString(this.releaseDate);
+        dest.writeValue(this.position);
     }
 }

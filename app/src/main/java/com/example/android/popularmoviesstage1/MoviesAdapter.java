@@ -20,6 +20,7 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesViewHolder> {
     private final OnItemClickListener listener;
     private ArrayList<Movie> moviesArray;
     private FrameLayout.LayoutParams layoutParams;
+    private int position = 0;
 
     /**
      * Constructor for this class.
@@ -44,6 +45,15 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesViewHolder> {
     void setMoviesArray(ArrayList<Movie> moviesArray) {
         Log.i(TAG, "(setMoviesArray) Movie list updated");
         this.moviesArray = moviesArray;
+    }
+
+    /**
+     * Getter method to obtain the last position saved at {@link #onBindViewHolder}.
+     *
+     * @return current position.
+     */
+    int getPosition() {
+        return position;
     }
 
     /**
@@ -96,8 +106,17 @@ class MoviesAdapter extends RecyclerView.Adapter<MoviesViewHolder> {
     public void onBindViewHolder(MoviesViewHolder viewHolder, int position) {
         Log.i(TAG, "(onBindViewHolder) Displaying data at position " + position);
         if (!moviesArray.isEmpty()) {
-            // Set info for current movie.
-            viewHolder.bind(moviesArray.get(position), listener, layoutParams);
+            Movie currentMovie = moviesArray.get(position);
+
+            // Set position in the adapter for current movie.
+            currentMovie.setPosition(position);
+
+            // Update MoviesViewHolder with the movie details at current position in the adapter.
+            viewHolder.bind(currentMovie, listener, layoutParams);
+
+            // Save current position.
+            //this.position = position;
+            this.position = viewHolder.getAdapterPosition();
         }
     }
 

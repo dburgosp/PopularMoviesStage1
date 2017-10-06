@@ -28,8 +28,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int VERTICAL_SPAN_COUNT = 3;
     private static final int HORIZONTAL_SPAN_COUNT = 4;
-    MoviesAdapter.OnItemClickListener listener;
-
     // Annotate fields with @BindView and views ID for Butter Knife to find and automatically cast
     // the corresponding views.
     @BindView(R.id.activity_main_recycler_view)
@@ -38,9 +36,9 @@ public class MainActivity extends AppCompatActivity {
     TextView noResultsTextView;
     @BindView(R.id.activity_main_loading_indicator)
     ProgressBar progressBar;
-
     private String sortOrder = NetworkUtils.SORT_ORDER_POPULAR;
     private MoviesAdapter moviesAdapter;
+    private int currentPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +46,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        // Get sort order if there is extra data (if we come from MovieDetails activity).
+        // Get sort order and last saved scroll currentPosition if there is extra data (if we come from
+        // MovieDetails activity).
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("sortOrder"))
-            sortOrder = intent.getStringExtra("sortOrder");
+        if (intent != null) {
+            if (intent.hasExtra("sortOrder")) sortOrder = intent.getStringExtra("sortOrder");
+            if (intent.hasExtra("currentPosition"))
+                currentPosition = intent.getIntExtra("currentPosition", 0);
+        }
 
         // Set RecyclerView for displaying movie posters on screen.
         setRecyclerView();
@@ -101,14 +103,15 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
 
         // Set the listener for click events in the Adapter.
-        listener = new MoviesAdapter.OnItemClickListener() {
+        MoviesAdapter.OnItemClickListener listener = new MoviesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Movie movie) {
                 // Start "MovieDetails" activity to show movie details when the current element is
                 // clicked.
                 Intent intent = new Intent(MainActivity.this, MovieDetails.class);
-                intent.putExtra("movie", movie);
                 intent.putExtra("sortOrder", sortOrder);
+                intent.putExtra("movie", movie);
+                currentPosition = movie.getPosition();
 
                 // Set sizes for the poster in the movie details activity.
                 int detailsPosterHeightPixels = 750 * detailsPosterlWidthPixels / 500;
@@ -233,8 +236,12 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
 
+        // Restore scroll currentPosition to 0, so the new movies list will be displayed from the top.
+        currentPosition = 0;
+
         // Fetch list of movies from TMDB.
         setAsyncTask();
+
         return true;
     }
 
@@ -245,6 +252,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Save current sort order.
         outState.putString("sortOrder", sortOrder);
+
+        // Save current position in the grid. If there is no positive stored value for the current
+        // position (we have not clicked on a movie poster, so currentPosition contains the default
+        // value 0) we must read the current position in the adapter from the helper method
+        // {@link MoviesAdapter#getPosition()}.
+        if (currentPosition == 0) currentPosition = moviesAdapter.getPosition();
+        outState.putInt("currentPosition", currentPosition);
     }
 
     /**
@@ -270,8 +284,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        // Restore sort order.
+        // Restore sort order and last saved currentPosition in the grid.
         sortOrder = savedInstanceState.getString("sortOrder");
+        currentPosition = savedInstanceState.getInt("currentPosition");
 
         // Retrieve data from TMDB.
         setAsyncTask();
@@ -293,6 +308,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.i(TAG, "(onPostExecute) Search results not null.");
                     moviesAdapter.setMoviesArray(searchResults);
                     moviesAdapter.notifyDataSetChanged();
+
+                    // Restore last currentPosition in the grid, if previously saved. This won't work if we
+                    // try to restore currentPosition before having displayed the results into the adapter.
+                    recyclerView.getLayoutManager().scrollToPosition(currentPosition);
                 } else {
                     Log.i(TAG, "(onPostExecute) No search results.");
                     noResultsTextView.setVisibility(View.VISIBLE);

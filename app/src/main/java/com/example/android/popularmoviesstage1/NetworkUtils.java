@@ -182,7 +182,7 @@ final class NetworkUtils {
                     releaseDate = currentMovie.getString("release_date");
 
                 // Create a new {@link Movie} object with the data retrieved from the JSON response.
-                Movie movie = new Movie(title, posterPath, overview, voteAverage, releaseDate);
+                Movie movie = new Movie(title, posterPath, overview, voteAverage, releaseDate, 0);
 
                 // Add the new {@link Movie} to the list of movies.
                 movies.add(movie);
